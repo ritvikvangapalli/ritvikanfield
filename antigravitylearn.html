@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ritvik Vangapalli | The Anfield Red Experience</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ========================================================
+       ROOT VARIABLES & LFC PALETTE
+       ======================================================== */
+    :root {
+      --lfc-red: #d00027;
+      --lfc-crimson: #9e001a;
+      --lfc-deep-dark: #08090d;
+      --lfc-pitch-dark: #0d1117;
+      --lfc-card-bg: rgba(22, 27, 34, 0.75);
+      --lfc-gold: #f5c518;
+      --lfc-gold-glow: rgba(245, 197, 24, 0.4);
+      --lfc-teal: #00a398;
+      --lfc-white: #f8fafc;
+      --lfc-gray: #94a3b8;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body: 'Outfit', sans-serif;
+      --font-quote: 'Playfair Display', serif;
+      --glow-red: 0 0 35px rgba(208, 0, 39, 0.45);
+      --transition-smooth: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--lfc-deep-dark);
+      color: var(--lfc-white);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #08090d;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, var(--lfc-red), var(--lfc-crimson));
+      border-radius: 5px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--lfc-gold);
+    }
+
+    /* Background Canvas */
+    #particle-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.65;
+    }
+
+    /* Radial Atmosphere Lighting */
+    .stadium-lighting {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 15% 15%, rgba(208, 0, 39, 0.18) 0%, transparent 45%),
+        radial-gradient(circle at 85% 20%, rgba(245, 197, 24, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 50% 80%, rgba(0, 163, 152, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(13, 17, 23, 0.95) 0%, rgba(8, 9, 13, 1) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ========================================================
+       TOP NAVIGATION BAR
+       ======================================================== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      padding: 1.1rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(20px);
+      background: rgba(8, 9, 13, 0.75);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      transition: var(--transition-smooth);
+    }
+
+    .navbar.scrolled {
+      padding: 0.8rem 3rem;
+      background: rgba(8, 9, 13, 0.92);
+      border-bottom: 1px solid rgba(208, 0, 39, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    }
+
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .liverbird-icon {
+      width: 38px;
+      height: 38px;
+      fill: var(--lfc-red);
+      filter: drop-shadow(0 0 10px rgba(208, 0, 39, 0.8));
+      transition: transform 0.4s ease;
+    }
+
+    .brand-container:hover .liverbird-icon {
+      transform: scale(1.15) rotate(-5deg);
+      fill: var(--lfc-gold);
+    }
+
+    .brand-text-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 1.55rem;
+      letter-spacing: 2px;
+      color: var(--lfc-white);
+      line-height: 1;
+    }
+
+    .brand-sub {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--lfc-gold);
+      font-weight: 700;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.2rem;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--lfc-gray);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      transition: var(--transition-smooth);
+      position: relative;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--lfc-white);
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--lfc-red);
+      transition: width 0.3s ease;
+      box-shadow: 0 0 8px var(--lfc-red);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .audio-toggle-btn {
+      background: rgba(208, 0, 39, 0.15);
+      border: 1px solid rgba(208, 0, 39, 0.4);
+      color: var(--lfc-white);
+      padding: 0.5rem 1rem;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition-smooth);
+    }
+
+    .audio-toggle-btn:hover {
+      background: var(--lfc-red);
+      box-shadow: var(--glow-red);
+      transform: translateY(-2px);
+    }
+
+    .audio-wave {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      height: 14px;
+    }
+
+    .audio-bar {
+      width: 3px;
+      height: 100%;
+      background: var(--lfc-gold);
+      border-radius: 2px;
+      animation: soundWave 1.2s ease-in-out infinite alternate;
+    }
+    .audio-bar:nth-child(2) { animation-delay: 0.2s; height: 60%; }
+    .audio-bar:nth-child(3) { animation-delay: 0.4s; height: 85%; }
+    .audio-bar:nth-child(4) { animation-delay: 0.1s; height: 40%; }
+
+    @keyframes soundWave {
+      0% { height: 20%; }
+      100% { height: 100%; }
+    }
+
+    .audio-paused .audio-bar {
+      animation: none;
+      height: 20%;
+    }
+
+    /* ========================================================
+       HERO INTRO SECTION - STARTS WITH USER'S NAME
+       ======================================================== */
+    .hero-section {
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7rem 2rem 4rem;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .hero-container {
+      max-width: 1350px;
+      width: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .hero-content {
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(208, 0, 39, 0.15);
+      border: 1px solid rgba(208, 0, 39, 0.45);
+      border-radius: 50px;
+      padding: 7px 18px;
+      margin-bottom: 1.6rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(208, 0, 39, 0.2);
+    }
+
+    .hero-badge-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 10px #22c55e;
+      animation: pulseGreen 1.8s infinite;
+    }
+
+    @keyframes pulseGreen {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    .hero-badge span {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--lfc-white);
+    }
+
+    /* THE PRIMARY NAME REVEAL */
+    .hero-intro-lead {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 6px;
+      color: var(--lfc-gold);
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero-intro-lead::before {
+      content: '';
+      width: 35px;
+      height: 2px;
+      background: var(--lfc-gold);
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(3.8rem, 7.5vw, 6.8rem);
+      line-height: 0.92;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 1.4rem;
+      text-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    .hero-title .name-highlight {
+      display: block;
+      background: linear-gradient(135deg, #ffffff 10%, #ff4b6b 60%, var(--lfc-red) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 35px rgba(208, 0, 39, 0.65));
+    }
+
+    .hero-title .anfield-highlight {
+      display: block;
+      color: var(--lfc-white);
+      font-size: 0.78em;
+      letter-spacing: 4px;
+      opacity: 0.95;
+    }
+
+    .hero-desc {
+      font-size: 1.15rem;
+      color: var(--lfc-gray);
+      line-height: 1.7;
+      max-width: 580px;
+      margin-bottom: 2.5rem;
+      font-weight: 400;
+    }
+
+    .hero-desc strong {
+      color: var(--lfc-white);
+      font-weight: 600;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--lfc-red) 0%, var(--lfc-crimson) 100%);
+      color: var(--lfc-white);
+      padding: 1rem 2.2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 10px 30px rgba(208, 0, 39, 0.4);
+      transition: var(--transition-smooth);
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(208, 0, 39, 0.65);
+      background: linear-gradient(135deg, #ff1a40 0%, #ba0022 100%);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--lfc-white);
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      transition: var(--transition-smooth);
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--lfc-gold);
+      color: var(--lfc-gold);
+      transform: translateY(-4px);
+    }
+
+    /* MATCHDAY VIP PASS CARD (3D Interactive) */
+    .vip-ticket-wrapper {
+      perspective: 1200px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .vip-ticket-card {
+      width: 100%;
+      max-width: 440px;
+      background: linear-gradient(145deg, #161b24 0%, #0d1016 100%);
+      border: 1px solid rgba(255, 215, 0, 0.25);
+      border-radius: 20px;
+      padding: 2.2rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(208, 0, 39, 0.2);
+      transform-style: preserve-3d;
+      transition: transform 0.2s ease-out, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+
+    .vip-ticket-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 215, 0, 0.12) 0%, transparent 60%);
+      pointer-events: none;
+      transform: rotate(30deg);
+    }
+
+    .ticket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.18);
+      padding-bottom: 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .ticket-badge {
+      background: var(--lfc-gold);
+      color: #000;
+      font-weight: 900;
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .ticket-stadium {
+      font-family: var(--font-display);
+      letter-spacing: 2px;
+      font-size: 1.3rem;
+      color: var(--lfc-white);
+    }
+
+    .ticket-user-name {
+      font-family: var(--font-display);
+      font-size: 2.3rem;
+      letter-spacing: 2px;
+      line-height: 1;
+      color: var(--lfc-white);
+      margin-bottom: 0.2rem;
+    }
+
+    .ticket-role {
+      font-size: 0.8rem;
+      letter-spacing: 3px;
+      color: var(--lfc-red);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    .ticket-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .ticket-cell {
+      text-align: center;
+    }
+
+    .ticket-cell-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--lfc-gray);
+      margin-bottom: 4px;
+    }
+
+    .ticket-cell-value {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      color: var(--lfc-gold);
+      letter-spacing: 1px;
+    }
+
+    .ticket-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px dashed rgba(255, 255, 255, 0.18);
+      padding-top: 1.2rem;
+    }
+
+    .barcode {
+      display: flex;
+      gap: 3px;
+      height: 36px;
+      align-items: flex-end;
+    }
+
+    .bar {
+      width: 3px;
+      height: 100%;
+      background: var(--lfc-white);
+      opacity: 0.85;
+    }
+    .bar.thin { width: 1.5px; }
+    .bar.thick { width: 5px; }
+
+    .ticket-ynwa {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--lfc-red);
+      letter-spacing: 2px;
+    }
+
+    /* ========================================================
+       SECTION 2: THIS IS ANFIELD - INTERACTIVE TUNNEL EXPERIENCE
+       ======================================================== */
+    .tunnel-section {
+      padding: 7rem 2rem;
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(to bottom, transparent, rgba(13, 17, 23, 0.8), transparent);
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 750px;
+      margin: 0 auto 4rem;
+    }
+
+    .section-eyebrow {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      color: var(--lfc-gold);
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4.2rem);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 1.2rem;
+    }
+
+    .section-title span {
+      color: var(--lfc-red);
+    }
+
+    .section-subtitle {
+      font-size: 1.05rem;
+      color: var(--lfc-gray);
+      line-height: 1.6;
+    }
+
+    .tunnel-interactive-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      max-width: 800px;
+      margin: 0 auto;
+      background: radial-gradient(circle at center, #1b212c 0%, #0c0e14 90%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      padding: 4.5rem 2rem;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), inset 0 0 60px rgba(0,0,0,0.8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tunnel-wall-texture {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0);
+      background-size: 24px 24px;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    /* THE ICONIC "THIS IS ANFIELD" SIGN */
+    .anfield-sign-box {
+      width: 340px;
+      max-width: 90%;
+      background: #000;
+      border: 6px solid #ffffff;
+      border-radius: 4px;
+      padding: 1.8rem 1.4rem;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.9), 0 0 0 1px #000;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+      user-select: none;
+    }
+
+    .anfield-sign-box:hover {
+      transform: scale(1.04) translateY(-4px);
+      box-shadow: 0 25px 50px rgba(208, 0, 39, 0.4), 0 0 25px rgba(255, 255, 255, 0.5);
+    }
+
+    .anfield-sign-box:active {
+      transform: scale(0.97) translateY(2px);
+    }
+
+    .sign-crest-wrapper {
+      margin-bottom: 0.8rem;
+    }
+
+    .sign-crest-icon {
+      width: 48px;
+      height: 48px;
+      fill: #ffffff;
+    }
+
+    .sign-main-text {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      letter-spacing: 3px;
+      color: #ffffff;
+      line-height: 1;
+      text-transform: uppercase;
+      margin-bottom: 0.2rem;
+    }
+
+    .sign-sub-text {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      color: #dddddd;
+      font-weight: 700;
+    }
+
+    .touch-indicator {
+      margin-top: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(208, 0, 39, 0.2);
+      border: 1px solid rgba(208, 0, 39, 0.5);
+      padding: 0.7rem 1.6rem;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--lfc-gold);
+      animation: pulseAttention 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseAttention {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .touch-count-banner {
+      margin-top: 1.2rem;
+      font-size: 0.85rem;
+      color: var(--lfc-gray);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .touch-count-number {
+      color: var(--lfc-white);
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    /* Tunnel quote */
+    .tunnel-quote-card {
+      margin-top: 3rem;
+      max-width: 650px;
+      text-align: center;
+      font-family: var(--font-quote);
+      font-size: 1.25rem;
+      color: #e2e8f0;
+      font-style: italic;
+      line-height: 1.7;
+      position: relative;
+    }
+
+    .tunnel-quote-author {
+      font-family: var(--font-body);
+      font-style: normal;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      color: var(--lfc-red);
+      font-weight: 700;
+      margin-top: 0.8rem;
+      display: block;
+    }
+
+    /* ========================================================
+       SECTION 3: WALL OF CHAMPIONS (TROPHY ROOM)
+       ======================================================== */
+    .trophy-section {
+      padding: 7rem 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .trophies-grid {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .trophy-card {
+      background: var(--lfc-card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 2.5rem 1.8rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition-smooth);
+      backdrop-filter: blur(12px);
+    }
+
+    .trophy-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(245, 197, 24, 0.4);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 30px rgba(245, 197, 24, 0.2);
+    }
+
+    .trophy-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--lfc-gold), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .trophy-card:hover::after {
+      opacity: 1;
+    }
+
+    .trophy-visual {
+      height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      transition: transform 0.4s ease;
+    }
+
+    .trophy-card:hover .trophy-visual {
+      transform: scale(1.15);
+    }
+
+    .trophy-svg {
+      width: 75px;
+      height: 75px;
+      filter: drop-shadow(0 0 15px rgba(245, 197, 24, 0.5));
+    }
+
+    .trophy-count {
+      font-family: var(--font-display);
+      font-size: 3.8rem;
+      line-height: 1;
+      color: var(--lfc-gold);
+      letter-spacing: 2px;
+      margin-bottom: 0.3rem;
+      text-shadow: 0 0 20px rgba(245, 197, 24, 0.4);
+    }
+
+    .trophy-name {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      letter-spacing: 1.5px;
+      color: var(--lfc-white);
+      margin-bottom: 0.8rem;
+    }
+
+    .trophy-years {
+      font-size: 0.85rem;
+      color: var(--lfc-gray);
+      line-height: 1.6;
+    }
+
+    .trophy-highlight-badge {
+      display: inline-block;
+      margin-top: 1.2rem;
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      background: rgba(208, 0, 39, 0.18);
+      color: #ff6b81;
+      border: 1px solid rgba(208, 0, 39, 0.35);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+    }
+
+    /* ========================================================
+       SECTION 4: TACTICAL PITCH & DREAM STARTING XI
+       ======================================================== */
+    .pitch-section {
+      padding: 7rem 2rem;
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(180deg, transparent 0%, rgba(10, 25, 18, 0.3) 50%, transparent 100%);
+    }
+
+    .pitch-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .tactical-board {
+      background: radial-gradient(circle at center, #114227 0%, #0a2918 80%, #06190f 100%);
+      border: 3px solid rgba(255, 255, 255, 0.35);
+      border-radius: 20px;
+      height: 620px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), inset 0 0 80px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Grass mowing lines */
+    .tactical-board::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.03),
+        rgba(255, 255, 255, 0.03) 60px,
+        transparent 60px,
+        transparent 120px
+      );
+      pointer-events: none;
+    }
+
+    /* Pitch Markings */
+    .pitch-line-center {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-50%);
+    }
+
+    .pitch-circle-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 140px;
+      height: 140px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .pitch-penalty-box-top {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 240px;
+      height: 100px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: none;
+    }
+
+    .pitch-penalty-box-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 240px;
+      height: 100px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-bottom: none;
+    }
+
+    /* Player Pins */
+    .player-pin {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      transition: transform 0.25s ease;
+      z-index: 10;
+    }
+
+    .player-pin:hover, .player-pin.active {
+      transform: translate(-50%, -50%) scale(1.22);
+      z-index: 20;
+    }
+
+    .jersey-circle {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--lfc-red) 0%, #850016 100%);
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: #ffffff;
+      transition: var(--transition-smooth);
+    }
+
+    .player-pin:hover .jersey-circle,
+    .player-pin.active .jersey-circle {
+      background: var(--lfc-gold);
+      color: #000;
+      border-color: #000;
+      box-shadow: 0 0 20px var(--lfc-gold);
+    }
+
+    .player-pin-name {
+      background: rgba(8, 9, 13, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--lfc-white);
+      margin-top: 4px;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+    }
+
+    /* Player Detail Card */
+    .player-card-panel {
+      background: var(--lfc-card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 2.2rem;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .player-detail-number {
+      font-family: var(--font-display);
+      font-size: 4rem;
+      line-height: 1;
+      color: var(--lfc-gold);
+      letter-spacing: 1px;
+    }
+
+    .player-detail-name {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      letter-spacing: 1px;
+      line-height: 1;
+      color: var(--lfc-white);
+      margin-bottom: 0.3rem;
+    }
+
+    .player-detail-pos {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      color: var(--lfc-red);
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    .player-detail-bio {
+      font-size: 0.95rem;
+      color: var(--lfc-gray);
+      line-height: 1.7;
+      margin-bottom: 1.8rem;
+    }
+
+    .player-stats-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .stat-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .stat-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-progress-bar {
+      width: 100%;
+      height: 7px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .stat-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--lfc-red), var(--lfc-gold));
+      border-radius: 10px;
+      transition: width 0.8s ease-out;
+    }
+
+    /* ========================================================
+       SECTION 5: YOU'LL NEVER WALK ALONE (THE ANTHEM & KOP)
+       ======================================================== */
+    .anthem-section {
+      padding: 7rem 2rem;
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      background: radial-gradient(circle at center, rgba(208, 0, 39, 0.15) 0%, transparent 70%);
+    }
+
+    .anthem-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .lyrics-card {
+      background: rgba(13, 17, 23, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 3.5rem 2.5rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+      position: relative;
+    }
+
+    .lyrics-stanza {
+      font-family: var(--font-quote);
+      font-size: clamp(1.3rem, 3vw, 2.1rem);
+      line-height: 1.6;
+      font-style: italic;
+      color: #e2e8f0;
+      margin-bottom: 2rem;
+      transition: color 0.3s ease;
+    }
+
+    .lyrics-stanza strong {
+      color: var(--lfc-gold);
+      font-style: normal;
+      display: block;
+      font-family: var(--font-display);
+      font-size: 1.4em;
+      letter-spacing: 2px;
+      margin-top: 0.5rem;
+      text-shadow: 0 0 25px rgba(245, 197, 24, 0.4);
+    }
+
+    /* CHANT SOUNDBOARD */
+    .soundboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+
+    .sound-pad {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 1.1rem 1rem;
+      color: var(--lfc-white);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition-smooth);
+    }
+
+    .sound-pad:hover {
+      background: var(--lfc-red);
+      border-color: var(--lfc-red);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(208, 0, 39, 0.5);
+    }
+
+    .sound-pad:active {
+      transform: scale(0.96);
+    }
+
+    .sound-icon {
+      font-size: 1.5rem;
+    }
+
+    /* ========================================================
+       FOOTER & RITVIK TRIBUTE
+       ======================================================== */
+    footer {
+      background: #050608;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 4.5rem 2rem 2.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 2rem;
+    }
+
+    .footer-crests {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .flame-icon {
+      width: 24px;
+      height: 36px;
+      fill: #ff9900;
+      filter: drop-shadow(0 0 10px #ff6600);
+      animation: flameFlicker 1.8s infinite alternate ease-in-out;
+    }
+
+    @keyframes flameFlicker {
+      0% { transform: scale(0.95) skewX(-2deg); }
+      100% { transform: scale(1.1) skewX(2deg); }
+    }
+
+    .footer-tribute-text {
+      font-size: 1.1rem;
+      color: var(--lfc-white);
+      max-width: 600px;
+      line-height: 1.7;
+    }
+
+    .footer-tribute-text strong {
+      color: var(--lfc-red);
+      font-weight: 700;
+    }
+
+    .footer-sub {
+      font-size: 0.8rem;
+      color: var(--lfc-gray);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* RESPONSIVE DESIGN */
+    @media (max-width: 992px) {
+      .navbar {
+        padding: 1rem 1.5rem;
+      }
+      .nav-links {
+        display: none; /* Mobile view simplicity */
+      }
+      .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 3rem;
+      }
+      .hero-intro-lead {
+        justify-content: center;
+      }
+      .hero-desc {
+        margin: 0 auto 2.5rem;
+      }
+      .hero-buttons {
+        justify-content: center;
+      }
+      .pitch-container {
+        grid-template-columns: 1fr;
+      }
+      .tactical-board {
+        height: 520px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Particle Canvas -->
+  <canvas id="particle-canvas"></canvas>
+  
+  <!-- Ambient Stadium Glow Lights -->
+  <div class="stadium-lighting"></div>
+
+  <!-- Top Navigation -->
+  <nav class="navbar" id="navbar">
+    <a href="#" class="brand-container">
+      <!-- Liverbird Vector Icon -->
+      <svg class="liverbird-icon" viewBox="0 0 100 100">
+        <path d="M50 8 C43 8, 38 14, 38 22 C38 27, 41 31, 45 33 C42 41, 35 47, 28 50 C26 47, 22 45, 17 46 C12 47, 9 52, 10 57 C11 63, 17 66, 23 64 C25 68, 29 72, 33 75 C31 81, 26 86, 20 89 L24 92 C32 88, 38 82, 42 75 C47 77, 53 77, 58 75 C62 82, 68 88, 76 92 L80 89 C74 86, 69 81, 67 75 C71 72, 75 68, 77 64 C83 66, 89 63, 90 57 C91 52, 88 47, 83 46 C78 45, 74 47, 72 50 C65 47, 58 41, 55 33 C59 31, 62 27, 62 22 C62 14, 57 8, 50 8 Z M50 16 C53 16, 55 18, 55 21 C55 24, 53 26, 50 26 C47 26, 45 24, 45 21 C45 18, 47 16, 50 16 Z"/>
+      </svg>
+      <div class="brand-text-wrapper">
+        <span class="brand-name">RITVIK VANGAPALLI</span>
+        <span class="brand-sub">LIVERPOOL FC VAULT</span>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#hero">Overview</a></li>
+      <li><a href="#tunnel">This Is Anfield</a></li>
+      <li><a href="#trophies">Trophy Room</a></li>
+      <li><a href="#pitch">Tactics & XI</a></li>
+      <li><a href="#anthem">YNWA Anthem</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button class="audio-toggle-btn audio-paused" id="ambientToggleBtn" onclick="toggleStadiumAudio()">
+        <span class="audio-wave">
+          <span class="audio-bar"></span>
+          <span class="audio-bar"></span>
+          <span class="audio-bar"></span>
+          <span class="audio-bar"></span>
+        </span>
+        <span id="audioStatusText">STADIUM AUDIO</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ========================================================
+       SECTION 1: HERO SECTION - STARTS WITH USER'S NAME
+       ======================================================== -->
+  <section class="hero-section" id="hero">
+    <div class="hero-container">
+      
+      <!-- Text / Intro Column -->
+      <div class="hero-content">
+        <div class="hero-badge">
+          <div class="hero-badge-pulse"></div>
+          <span>OFFICIAL ANFIELD HEADQUARTERS</span>
+        </div>
+
+        <div class="hero-intro-lead">CURATED & DIRECTED BY</div>
+        
+        <h1 class="hero-title">
+          <span class="name-highlight">RITVIK VANGAPALLI</span>
+          <span class="anfield-highlight">THIS IS ANFIELD</span>
+        </h1>
+
+        <p class="hero-desc">
+          Welcome to the high-voltage sanctuary of <strong>Liverpool Football Club</strong>. 
+          From the roaring thunder of the Spion Kop to European glory under the floodlights, 
+          step into the heart of 19-time League Champions and 6-time Kings of Europe.
+        </p>
+
+        <div class="hero-buttons">
+          <a href="#tunnel" class="btn-primary" onclick="playKickSound()">
+            <span>TOUCH THE SIGN</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#trophies" class="btn-secondary" onclick="playCheerSound()">
+            <span>WALL OF CHAMPIONS</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- VIP Pass Interactive 3D Card -->
+      <div class="vip-ticket-wrapper">
+        <div class="vip-ticket-card" id="tiltCard" onmousemove="handleCardTilt(event)" onmouseleave="resetCardTilt()">
+          <div class="ticket-header">
+            <span class="ticket-badge">VIP ALL-ACCESS PASS</span>
+            <span class="ticket-stadium">ANFIELD ROAD</span>
+          </div>
+
+          <div class="ticket-user-name">RITVIK VANGAPALLI</div>
+          <div class="ticket-role">HONORARY KOP COMMANDER</div>
+
+          <div class="ticket-grid">
+            <div class="ticket-cell">
+              <div class="ticket-cell-label">STAND</div>
+              <div class="ticket-cell-value">THE KOP</div>
+            </div>
+            <div class="ticket-cell">
+              <div class="ticket-cell-label">TIER</div>
+              <div class="ticket-cell-value">TIER 1</div>
+            </div>
+            <div class="ticket-cell">
+              <div class="ticket-cell-label">GATE</div>
+              <div class="ticket-cell-value">SHANKLY</div>
+            </div>
+          </div>
+
+          <div class="ticket-footer">
+            <div class="barcode">
+              <div class="bar"></div><div class="bar thin"></div><div class="bar thick"></div>
+              <div class="bar"></div><div class="bar thin"></div><div class="bar thick"></div>
+              <div class="bar thin"></div><div class="bar"></div><div class="bar thick"></div>
+              <div class="bar thin"></div><div class="bar"></div><div class="bar"></div>
+            </div>
+            <div class="ticket-ynwa">Y.N.W.A • EST. 1892</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================
+       SECTION 2: THIS IS ANFIELD - INTERACTIVE TUNNEL
+       ======================================================== -->
+  <section class="tunnel-section" id="tunnel">
+    <div class="section-header">
+      <span class="section-eyebrow">THE PLAYERS' TUNNEL TRADITION</span>
+      <h2 class="section-title">THE LEGENDARY <span>SIGN</span></h2>
+      <p class="section-subtitle">
+        Placed by Bill Shankly to remind our lads who they are playing for, and to remind the opposition who they are playing against.
+      </p>
+    </div>
+
+    <div class="tunnel-interactive-stage">
+      <div class="tunnel-wall-texture"></div>
+
+      <!-- The Sign itself -->
+      <div class="anfield-sign-box" id="anfieldSign" onclick="touchAnfieldSign()">
+        <div class="sign-crest-wrapper">
+          <svg class="sign-crest-icon" viewBox="0 0 100 100">
+            <path d="M50 8 C43 8, 38 14, 38 22 C38 27, 41 31, 45 33 C42 41, 35 47, 28 50 C26 47, 22 45, 17 46 C12 47, 9 52, 10 57 C11 63, 17 66, 23 64 C25 68, 29 72, 33 75 C31 81, 26 86, 20 89 L24 92 C32 88, 38 82, 42 75 C47 77, 53 77, 58 75 C62 82, 68 88, 76 92 L80 89 C74 86, 69 81, 67 75 C71 72, 75 68, 77 64 C83 66, 89 63, 90 57 C91 52, 88 47, 83 46 C78 45, 74 47, 72 50 C65 47, 58 41, 55 33 C59 31, 62 27, 62 22 C62 14, 57 8, 50 8 Z"/>
+          </svg>
+        </div>
+        <div class="sign-main-text">THIS IS ANFIELD</div>
+        <div class="sign-sub-text">LIVERPOOL FOOTBALL CLUB</div>
+      </div>
+
+      <div class="touch-indicator">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+        <span>CLICK TO TOUCH THE SIGN</span>
+      </div>
+
+      <div class="touch-count-banner">
+        Sign Touched: <span class="touch-count-number" id="touchCountDisplay">97,421</span> times by Kopites
+      </div>
+
+      <div class="tunnel-quote-card">
+        “Some people believe football is a matter of life and death, I am very disappointed with that attitude. I can assure you it is much, much more important than that.”
+        <span class="tunnel-quote-author">— Bill Shankly (Liverpool Manager 1959–1974)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       SECTION 3: WALL OF CHAMPIONS (TROPHY ROOM)
+       ======================================================== -->
+  <section class="trophy-section" id="trophies">
+    <div class="section-header">
+      <span class="section-eyebrow">THE CABINET OF DREAMS</span>
+      <h2 class="section-title">WALL OF <span>CHAMPIONS</span></h2>
+      <p class="section-subtitle">
+        A legacy etched in silver, forged across 130+ years of relentless pursuit of excellence.
+      </p>
+    </div>
+
+    <div class="trophies-grid">
+      
+      <!-- Champions League -->
+      <div class="trophy-card" onmouseenter="playTrophyShine()">
+        <div class="trophy-visual">
+          <!-- Big Ears European Cup SVG -->
+          <svg class="trophy-svg" viewBox="0 0 100 100" fill="url(#goldGradient)">
+            <defs>
+              <linearGradient id="goldGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#fff275"/>
+                <stop offset="50%" stop-color="#ffd700"/>
+                <stop offset="100%" stop-color="#d4af37"/>
+              </linearGradient>
+            </defs>
+            <path d="M30 20 C20 20, 15 35, 15 50 C15 62, 25 70, 35 72 L35 78 C30 80, 25 85, 25 90 L75 90 C75 85, 70 80, 65 78 L65 72 C75 70, 85 62, 85 50 C85 35, 80 20, 70 20 L65 20 C65 40, 58 68, 50 68 C42 68, 35 40, 35 20 Z M30 25 L35 25 C35 42, 40 55, 45 62 C37 60, 22 55, 22 45 C22 35, 26 25, 30 25 Z M70 25 C74 25, 78 35, 78 45 C78 55, 63 60, 55 62 C60 55, 65 42, 65 25 Z"/>
+          </svg>
+        </div>
+        <div class="trophy-count">6</div>
+        <div class="trophy-name">EUROPEAN CUPS</div>
+        <div class="trophy-years">1977, 1978, 1981, 1984, 2005 (Istanbul), 2019 (Madrid)</div>
+        <span class="trophy-highlight-badge">MOST IN BRITISH FOOTBALL</span>
+      </div>
+
+      <!-- League Titles -->
+      <div class="trophy-card" onmouseenter="playTrophyShine()">
+        <div class="trophy-visual">
+          <svg class="trophy-svg" viewBox="0 0 100 100" fill="url(#goldGradient)">
+            <path d="M50 15 L62 38 L88 38 L67 53 L75 78 L50 63 L25 78 L33 53 L12 38 L38 38 Z"/>
+          </svg>
+        </div>
+        <div class="trophy-count">19</div>
+        <div class="trophy-name">LEAGUE TITLES</div>
+        <div class="trophy-years">From 1901 to the record-shattering 2019-20 Premier League conquest.</div>
+        <span class="trophy-highlight-badge">DOMINANT DYNASTY</span>
+      </div>
+
+      <!-- FA Cups -->
+      <div class="trophy-card" onmouseenter="playTrophyShine()">
+        <div class="trophy-visual">
+          <svg class="trophy-svg" viewBox="0 0 100 100" fill="url(#goldGradient)">
+            <path d="M35 25 L65 25 L65 45 C65 58, 58 65, 50 65 C42 65, 35 58, 35 45 Z M50 65 L50 82 M38 82 L62 82 M25 32 C18 35, 18 45, 28 48 L35 48 M75 32 C82 35, 82 45, 72 48 L65 48"/>
+          </svg>
+        </div>
+        <div class="trophy-count">8</div>
+        <div class="trophy-name">FA CUPS</div>
+        <div class="trophy-years">1965, 1974, 1986, 1989, 1992, 2001, 2006, 2022</div>
+        <span class="trophy-highlight-badge">WEMBLEY GLORY</span>
+      </div>
+
+      <!-- League Cups -->
+      <div class="trophy-card" onmouseenter="playTrophyShine()">
+        <div class="trophy-visual">
+          <svg class="trophy-svg" viewBox="0 0 100 100" fill="url(#goldGradient)">
+            <path d="M30 30 C30 20, 70 20, 70 30 L65 60 C65 72, 35 72, 35 60 Z M50 72 L50 85 M35 85 L65 85"/>
+          </svg>
+        </div>
+        <div class="trophy-count">10</div>
+        <div class="trophy-name">LEAGUE CUPS</div>
+        <div class="trophy-years">English record 10-time winners, including 2022 & 2024 heroics.</div>
+        <span class="trophy-highlight-badge">ALL-TIME ENGLISH RECORD</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================
+       SECTION 4: TACTICAL PITCH & STARTING XI
+       ======================================================== -->
+  <section class="pitch-section" id="pitch">
+    <div class="section-header">
+      <span class="section-eyebrow">HEAVY METAL FOOTBALL</span>
+      <h2 class="section-title">THE RED <span>STARTING XI</span></h2>
+      <p class="section-subtitle">
+        Click any position pin on the pitch to inspect player profile, attributes, and tactical masterclass.
+      </p>
+    </div>
+
+    <div class="pitch-container">
+      
+      <!-- Interactive 2D Tactical Pitch -->
+      <div class="tactical-board" id="tacticalBoard">
+        <div class="pitch-line-center"></div>
+        <div class="pitch-circle-center"></div>
+        <div class="pitch-penalty-box-top"></div>
+        <div class="pitch-penalty-box-bottom"></div>
+
+        <!-- 4-3-3 Formation Pins -->
+        <!-- Goalkeeper -->
+        <div class="player-pin" style="top: 88%; left: 50%;" onclick="selectPlayer('alisson')">
+          <div class="jersey-circle">1</div>
+          <span class="player-pin-name">Alisson</span>
+        </div>
+
+        <!-- Defenders -->
+        <div class="player-pin" style="top: 72%; left: 16%;" onclick="selectPlayer('robertson')">
+          <div class="jersey-circle">26</div>
+          <span class="player-pin-name">Robertson</span>
+        </div>
+        <div class="player-pin active" id="vvdPin" style="top: 74%; left: 38%;" onclick="selectPlayer('vandijk')">
+          <div class="jersey-circle">4</div>
+          <span class="player-pin-name">Van Dijk (C)</span>
+        </div>
+        <div class="player-pin" style="top: 74%; left: 62%;" onclick="selectPlayer('konate')">
+          <div class="jersey-circle">5</div>
+          <span class="player-pin-name">Konaté</span>
+        </div>
+        <div class="player-pin" style="top: 72%; left: 84%;" onclick="selectPlayer('trent')">
+          <div class="jersey-circle">66</div>
+          <span class="player-pin-name">Alexander-Arnold</span>
+        </div>
+
+        <!-- Midfielders -->
+        <div class="player-pin" style="top: 50%; left: 50%;" onclick="selectPlayer('gravenberch')">
+          <div class="jersey-circle">38</div>
+          <span class="player-pin-name">Gravenberch</span>
+        </div>
+        <div class="player-pin" style="top: 48%; left: 26%;" onclick="selectPlayer('macallister')">
+          <div class="jersey-circle">10</div>
+          <span class="player-pin-name">Mac Allister</span>
+        </div>
+        <div class="player-pin" style="top: 48%; left: 74%;" onclick="selectPlayer('szoboszlai')">
+          <div class="jersey-circle">8</div>
+          <span class="player-pin-name">Szoboszlai</span>
+        </div>
+
+        <!-- Forwards -->
+        <div class="player-pin" style="top: 22%; left: 22%;" onclick="selectPlayer('diaz')">
+          <div class="jersey-circle">7</div>
+          <span class="player-pin-name">Luis Díaz</span>
+        </div>
+        <div class="player-pin" style="top: 18%; left: 50%;" onclick="selectPlayer('jota')">
+          <div class="jersey-circle">20</div>
+          <span class="player-pin-name">Diogo Jota</span>
+        </div>
+        <div class="player-pin" style="top: 22%; left: 78%;" onclick="selectPlayer('salah')">
+          <div class="jersey-circle">11</div>
+          <span class="player-pin-name">Mo Salah</span>
+        </div>
+      </div>
+
+      <!-- Player Detail Info Card -->
+      <div class="player-card-panel" id="playerPanel">
+        <div class="player-detail-number" id="pNumber">#4</div>
+        <div class="player-detail-name" id="pName">VIRGIL VAN DIJK</div>
+        <div class="player-detail-pos" id="pPos">CENTRE-BACK • CAPTAIN</div>
+        
+        <p class="player-detail-bio" id="pBio">
+          Calm as you like. The Dutch colossus transformed Liverpool's defensive spine into an impregnable fortress. UEFA Men's Player of the Year and Anfield captain.
+        </p>
+
+        <div class="player-stats-list">
+          <div class="stat-row">
+            <div class="stat-meta">
+              <span>DEFENDING / AERIALS</span>
+              <span id="pStat1Val">98%</span>
+            </div>
+            <div class="stat-progress-bar">
+              <div class="stat-fill" id="pStat1Bar" style="width: 98%;"></div>
+            </div>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat-meta">
+              <span>LEADERSHIP</span>
+              <span id="pStat2Val">99%</span>
+            </div>
+            <div class="stat-progress-bar">
+              <div class="stat-fill" id="pStat2Bar" style="width: 99%;"></div>
+            </div>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat-meta">
+              <span>PASSING RANGE</span>
+              <span id="pStat3Val">92%</span>
+            </div>
+            <div class="stat-progress-bar">
+              <div class="stat-fill" id="pStat3Bar" style="width: 92%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================
+       SECTION 5: YOU'LL NEVER WALK ALONE (THE ANTHEM)
+       ======================================================== -->
+  <section class="anthem-section" id="anthem">
+    <div class="section-header">
+      <span class="section-eyebrow">THE SPIRIT OF MERSEYSIDE</span>
+      <h2 class="section-title">YOU’LL NEVER <span>WALK ALONE</span></h2>
+      <p class="section-subtitle">
+        Sung with scarves held high as the match kicks off. The greatest anthem in world sport.
+      </p>
+    </div>
+
+    <div class="anthem-container">
+      <div class="lyrics-card">
+        <div class="lyrics-stanza">
+          “When you walk through a storm, hold your head up high,<br>
+          And don't be afraid of the dark.<br>
+          At the end of a storm, there's a golden sky,<br>
+          And the sweet silver song of a lark...<br><br>
+          Walk on through the wind, walk on through the rain,<br>
+          Though your dreams be tossed and blown...<br>
+          <strong>WALK ON, WALK ON, WITH HOPE IN YOUR HEART,<br>AND YOU’LL NEVER WALK ALONE!</strong>”
+        </div>
+
+        <div class="soundboard-grid">
+          <button class="sound-pad" onclick="triggerChant('anfieldRoar')">
+            <span class="sound-icon">🏟️</span>
+            <span>KOP ROAR</span>
+          </button>
+          <button class="sound-pad" onclick="triggerChant('whistle')">
+            <span class="sound-icon">⚽</span>
+            <span>REFEREE WHISTLE</span>
+          </button>
+          <button class="sound-pad" onclick="triggerChant('allezChime')">
+            <span class="sound-icon">🎺</span>
+            <span>ALLEZ ALLEZ ALLEZ</span>
+          </button>
+          <button class="sound-pad" onclick="triggerChant('goalSiren')">
+            <span class="sound-icon">🔥</span>
+            <span>GOAL CELEBRATION</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       FOOTER & RITVIK TRIBUTE
+       ======================================================== -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-crests">
+        <!-- Eternal Flames for the 97 -->
+        <svg class="flame-icon" viewBox="0 0 24 36">
+          <path d="M12 0 C12 10 2 15 2 24 C2 31 7 36 12 36 C17 36 22 31 22 24 C22 15 12 10 12 0 Z"/>
+        </svg>
+        <span style="font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 2px;">97 NEVER FORGOTTEN</span>
+        <svg class="flame-icon" viewBox="0 0 24 36">
+          <path d="M12 0 C12 10 2 15 2 24 C2 31 7 36 12 36 C17 36 22 31 22 24 C22 15 12 10 12 0 Z"/>
+        </svg>
+      </div>
+
+      <div class="footer-tribute-text">
+        Created for <strong>Ritvik Vangapalli</strong> • Dedicated to the relentless passion of Liverpool Football Club. 
+        Form is temporary, class is permanent.
+      </div>
+
+      <div class="footer-sub">
+        LIVERPOOL FOOTBALL CLUB • ESTABLISHED 1892 • ANFIELD, L4 0TH
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================
+       JAVASCRIPT: WEB AUDIO SYNTH & INTERACTIVE LOGIC
+       ======================================================== -->
+  <script>
+    /* ========================================================
+       1. WEB AUDIO API SYNTHESIZER (NO EXTERNAL AUDIO FILES NEEDED!)
+       ======================================================== */
+    let audioCtx = null;
+    let isAmbientPlaying = false;
+    let ambientGainNode = null;
+    let noiseSource = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    // Toggle Stadium Ambience (Simulated Crowd Murmur & Floodlight Hum)
+    function toggleStadiumAudio() {
+      const ctx = getAudioContext();
+      const btn = document.getElementById('ambientToggleBtn');
+      const text = document.getElementById('audioStatusText');
+
+      if (!isAmbientPlaying) {
+        // Generate filtered pink noise for authentic stadium roar ambience
+        const bufferSize = ctx.sampleRate * 2;
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+        
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          b0 = 0.99886 * b0 + white * 0.0555179;
+          b1 = 0.99332 * b1 + white * 0.0750759;
+          b2 = 0.96900 * b2 + white * 0.1538520;
+          b3 = 0.86650 * b3 + white * 0.3104856;
+          b4 = 0.55000 * b4 + white * 0.5329522;
+          b5 = -0.7616 * b5 - white * 0.0168980;
+          output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.04;
+          b6 = white * 0.115926;
+        }
+
+        noiseSource = ctx.createBufferSource();
+        noiseSource.buffer = noiseBuffer;
+        noiseSource.loop = true;
+
+        // Bandpass filter centered around crowd vocal frequencies (280Hz - 600Hz)
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 350;
+        filter.Q.value = 1.2;
+
+        ambientGainNode = ctx.createGain();
+        ambientGainNode.gain.setValueAtTime(0.01, ctx.currentTime);
+        ambientGainNode.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime + 1.5);
+
+        noiseSource.connect(filter);
+        filter.connect(ambientGainNode);
+        ambientGainNode.connect(ctx.destination);
+
+        noiseSource.start();
+        isAmbientPlaying = true;
+        btn.classList.remove('audio-paused');
+        text.innerText = 'STADIUM LIVE';
+      } else {
+        if (ambientGainNode) {
+          ambientGainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+          setTimeout(() => {
+            if (noiseSource) {
+              noiseSource.stop();
+              noiseSource.disconnect();
+            }
+          }, 500);
+        }
+        isAmbientPlaying = false;
+        btn.classList.add('audio-paused');
+        text.innerText = 'STADIUM AUDIO';
+      }
+    }
+
+    // Touch Anfield Sign Sound (Heavy resonant metal gong + crowd cheer)
+    let touchCount = 97421;
+    function touchAnfieldSign() {
+      const ctx = getAudioContext();
+      
+      // Resonant deep strike oscillator
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(140, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(45, ctx.currentTime + 0.6);
+
+      gain.gain.setValueAtTime(0.6, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.8);
+
+      // Increment counter
+      touchCount++;
+      document.getElementById('touchCountDisplay').innerText = touchCount.toLocaleString();
+
+      // Visual flash animation
+      const sign = document.getElementById('anfieldSign');
+      sign.style.boxShadow = '0 0 50px rgba(208, 0, 39, 1), 0 0 25px rgba(255, 255, 255, 1)';
+      setTimeout(() => {
+        sign.style.boxShadow = '';
+      }, 350);
+
+      triggerChant('anfieldRoar');
+    }
+
+    // Referee Whistle Sound
+    function playWhistle() {
+      const ctx = getAudioContext();
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc1.type = 'sine';
+      osc2.type = 'sine';
+      osc1.frequency.setValueAtTime(2800, ctx.currentTime);
+      osc2.frequency.setValueAtTime(2950, ctx.currentTime);
+
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime + 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start();
+      osc2.start();
+      osc1.stop(ctx.currentTime + 0.35);
+      osc2.stop(ctx.currentTime + 0.35);
+    }
+
+    // Allez Allez Allez Chime melody
+    function playAllezChime() {
+      const ctx = getAudioContext();
+      const notes = [440, 493.88, 554.37, 659.25, 554.37, 493.88, 440];
+      const step = 0.16;
+
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * step);
+
+        gain.gain.setValueAtTime(0, ctx.currentTime + idx * step);
+        gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + idx * step + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (idx + 1) * step);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + idx * step);
+        osc.stop(ctx.currentTime + (idx + 1) * step);
+      });
+    }
+
+    // Soundboard dispatcher
+    function triggerChant(type) {
+      const ctx = getAudioContext();
+      if (type === 'whistle') {
+        playWhistle();
+      } else if (type === 'allezChime') {
+        playAllezChime();
+      } else if (type === 'goalSiren') {
+        // Siren swell
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(350, ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(750, ctx.currentTime + 0.4);
+        osc.frequency.linearRampToValueAtTime(350, ctx.currentTime + 0.8);
+        osc.frequency.linearRampToValueAtTime(750, ctx.currentTime + 1.2);
+
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.4);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 1.4);
+      } else if (type === 'anfieldRoar') {
+        // Dramatic crowd swell
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(90, ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(140, ctx.currentTime + 0.6);
+        osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 1.5);
+
+        gain.gain.setValueAtTime(0.01, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.5);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 1.5);
+      }
+    }
+
+    function playKickSound() {
+      const ctx = getAudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(160, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(35, ctx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.5, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.2);
+    }
+
+    function playCheerSound() {
+      triggerChant('anfieldRoar');
+    }
+
+    function playTrophyShine() {
+      const ctx = getAudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.25);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.25);
+    }
+
+    /* ========================================================
+       2. TACTICAL PITCH PLAYER ROSTER DATA
+       ======================================================== */
+    const playersData = {
+      vandijk: {
+        number: "#4",
+        name: "VIRGIL VAN DIJK",
+        pos: "CENTRE-BACK • CAPTAIN",
+        bio: "Calm as you like. The Dutch colossus transformed Liverpool's defensive spine into an impregnable fortress. UEFA Men's Player of the Year and Anfield captain.",
+        s1Label: "DEFENDING / AERIALS", s1Val: "98%",
+        s2Label: "LEADERSHIP", s2Val: "99%",
+        s3Label: "PASSING RANGE", s3Val: "92%"
+      },
+      salah: {
+        number: "#11",
+        name: "MOHAMED SALAH",
+        pos: "RIGHT WINGER • THE EGYPTIAN KING",
+        bio: "All-time Premier League phenomenon. Over 200 goals for the Reds, multiple Golden Boots, and unmatched clutch match-winning brilliance.",
+        s1Label: "CLUTCH FINISHING", s1Val: "99%",
+        s2Label: "PACE & DRIBLING", s2Val: "95%",
+        s3Label: "CREATIVITY / ASSISTS", s3Val: "93%"
+      },
+      alisson: {
+        number: "#1",
+        name: "ALISSON BECKER",
+        pos: "GOALKEEPER • THE GUARDIAN",
+        bio: "The world's premier goalkeeper in 1v1 situations. Champion of Europe, Premier League winner, and the famous 95th-minute header vs West Brom.",
+        s1Label: "1-ON-1 REFLEXES", s1Val: "99%",
+        s2Label: "DISTRIBUTION", s2Val: "94%",
+        s3Label: "CLUTCH MOMENTS", s3Val: "97%"
+      },
+      trent: {
+        number: "#66",
+        name: "TRENT ALEXANDER-ARNOLD",
+        pos: "RIGHT-BACK • CREATIVE VISIONARY",
+        bio: "The Scouser in our team. Re-engineered what it means to be a modern fullback with quarterback-like vision and deadly set-piece delivery.",
+        s1Label: "CROSSING & ACCURACY", s1Val: "99%",
+        s2Label: "VISION & IQ", s2Val: "97%",
+        s3Label: "DEAD BALLS", s3Val: "96%"
+      },
+      macallister: {
+        number: "#10",
+        name: "ALEXIS MAC ALLISTER",
+        pos: "CENTRAL MIDFIELD • WORLD CHAMPION",
+        bio: "World Cup champion endowed with immaculate control, tempo management, and laser long-range screamers from outside the 18-yard box.",
+        s1Label: "BALL RETENTION", s1Val: "96%",
+        s2Label: "TACTICAL INTELLECT", s2Val: "95%",
+        s3Label: "LONG SHOTS", s3Val: "91%"
+      },
+      szoboszlai: {
+        number: "#8",
+        name: "DOMINIK SZOBOSZLAI",
+        pos: "ATTACKING MIDFIELD • HUNGARIAN ROCKET",
+        bio: "Carrying the legendary #8 shirt with thunderous long-range strikes, lung-busting stamina, and sensational pressing intensity.",
+        s1Label: "SHOT POWER", s1Val: "98%",
+        s2Label: "STAMINA / PRESSING", s2Val: "97%",
+        s3Label: "BALL CARRYING", s3Val: "92%"
+      },
+      gravenberch: {
+        number: "#38",
+        name: "RYAN GRAVENBERCH",
+        pos: "DEFENSIVE MIDFIELD • CONDUCTOR",
+        bio: "The revelation of Arne Slot's system. Glides past oncoming pressers with effortless Dutch technique, interception radar, and defensive grace.",
+        s1Label: "PRESS RESISTANCE", s1Val: "97%",
+        s2Label: "INTERCEPTIONS", s2Val: "93%",
+        s3Label: "PROGRESSIVE RUNS", s3Val: "94%"
+      },
+      robertson: {
+        number: "#26",
+        name: "ANDY ROBERTSON",
+        pos: "LEFT-BACK • SCOTTISH ENGINE",
+        bio: "An irrepressible workhorse who defines the Anfield fighting spirit. Tenacious tackling paired with devastating whipped crosses.",
+        s1Label: "WORK RATE", s1Val: "99%",
+        s2Label: "WHIPPED CROSSES", s2Val: "94%",
+        s3Label: "AGGRESSION", s3Val: "96%"
+      },
+      konate: {
+        number: "#5",
+        name: "IBRAHIMA KONATÉ",
+        pos: "CENTRE-BACK • THE ENFORCER",
+        bio: "A physical powerhouse with blistering recovery speed and aerial superiority. Forms Europe's most formidable defensive wall alongside Van Dijk.",
+        s1Label: "PHYSICAL STRENGTH", s1Val: "98%",
+        s2Label: "RECOVERY SPEED", s2Val: "94%",
+        s3Label: "TACKLING", s3Val: "93%"
+      },
+      diaz: {
+        number: "#7",
+        name: "LUIS DÍAZ",
+        pos: "LEFT WINGER • EL LUCHADOR",
+        bio: "Electric Colombian trickery, non-stop battling spirit, and explosive pace down the left flank that strikes dread into opposing defenders.",
+        s1Label: "FLAIR & DRIBBLING", s1Val: "97%",
+        s2Label: "ENERGY & FIGHT", s2Val: "98%",
+        s3Label: "ACCELERATION", s3Val: "96%"
+      },
+      jota: {
+        number: "#20",
+        name: "DIOGO JOTA",
+        pos: "CENTRE-FORWARD • DEADLY FINISHER",
+        bio: "Liverpool's slot-machine poacher. Clinical with both feet, unmatched aerial timing for his height, and ice-cold composure in the box.",
+        s1Label: "CLINICAL CONVERSION", s1Val: "98%",
+        s2Label: "AERIAL TIMING", s2Val: "95%",
+        s3Label: "MOVEMENT IN BOX", s3Val: "96%"
+      }
+    };
+
+    function selectPlayer(key) {
+      const data = playersData[key];
+      if (!data) return;
+
+      playKickSound();
+
+      // Update active pin styling
+      document.querySelectorAll('.player-pin').forEach(pin => pin.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      // Update text
+      document.getElementById('pNumber').innerText = data.number;
+      document.getElementById('pName').innerText = data.name;
+      document.getElementById('pPos').innerText = data.pos;
+      document.getElementById('pBio').innerText = data.bio;
+
+      // Update stats
+      document.getElementById('pStat1Val').innerText = data.s1Val;
+      document.getElementById('pStat1Bar').style.width = data.s1Val;
+
+      document.getElementById('pStat2Val').innerText = data.s2Val;
+      document.getElementById('pStat2Bar').style.width = data.s2Val;
+
+      document.getElementById('pStat3Val').innerText = data.s3Val;
+      document.getElementById('pStat3Bar').style.width = data.s3Val;
+    }
+
+    /* ========================================================
+       3. 3D TICKET TILT INTERACTION
+       ======================================================== */
+    const card = document.getElementById('tiltCard');
+    function handleCardTilt(e) {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      const rotateX = (-y / (rect.height / 2)) * 14;
+      const rotateY = (x / (rect.width / 2)) * 14;
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.03, 1.03, 1.03)`;
+    }
+
+    function resetCardTilt() {
+      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+    }
+
+    /* ========================================================
+       4. NAVBAR SCROLL EFFECT
+       ======================================================== */
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('navbar');
+      if (window.scrollY > 40) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+
+    /* ========================================================
+       5. PARTICLES BACKGROUND (ANFIELD SPINDRIFT & SPARKS)
+       ======================================================== */
+    const canvas = document.getElementById('particle-canvas');
+    const cctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height + canvas.height;
+        this.size = Math.random() * 2.8 + 0.8;
+        this.speedY = Math.random() * 1.2 + 0.3;
+        this.speedX = (Math.random() - 0.5) * 0.8;
+        this.alpha = Math.random() * 0.7 + 0.2;
+        // Color variation: Liverpool red & Anfield gold
+        const isRed = Math.random() > 0.35;
+        this.color = isRed ? '208, 0, 39' : '245, 197, 24';
+      }
+      update() {
+        this.y -= this.speedY;
+        this.x += this.speedX;
+        if (this.y < -10) this.reset();
+      }
+      draw() {
+        cctx.save();
+        cctx.beginPath();
+        cctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        cctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
+        cctx.shadowBlur = 12;
+        cctx.shadowColor = `rgb(${this.color})`;
+        cctx.fill();
+        cctx.restore();
+      }
+    }
+
+    for (let i = 0; i < 48; i++) {
+      const p = new Particle();
+      p.y = Math.random() * canvas.height;
+      particles.push(p);
+    }
+
+    function animateParticles() {
+      cctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+  </script>
+</body>
+</html>
+
